@@ -1,0 +1,19 @@
+
+🔍 FORENSICS CHALLENGE: Hidden Data
+===================================
+
+This file contains hidden information. Can you find it?
+
+Normal text content here...
+Some more normal content...
+Regular file data...
+
+The flag is hidden somewhere in this file.
+Look carefully at the entire file structure.
+
+Additional padding text to make it less obvious...
+More content here...
+Even more content...
+
+CTF{h1dd3n_1n_pl41n_51ght}
+    

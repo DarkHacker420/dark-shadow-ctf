@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>🎯 CTF Challenges</h1>
+
+{% for category, challenges in categories.items() %}
+<div class="category-section">
+    <h2>{{ category }}</h2>
+    <div class="row">
+        {% for challenge in challenges %}
+        <div class="col-md-4 mb-3">
+            <div class="card challenge-card {{ 'solved' if challenge.solved else 'unsolved' }}">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{ challenge.name }}
+                        {% if challenge.solved %}✅{% else %}❌{% endif %}
+                    </h5>
+                    <p class="card-text">{{ challenge.description }}</p>
+                    <p><strong>Points:</strong> {{ challenge.points }}</p>
+                    <p><strong>Difficulty:</strong> {{ challenge.difficulty }}</p>
+                    <a href="{{ url_for('challenge_detail', challenge_id=challenge.id) }}" 
+                       class="btn btn-primary">View Challenge</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

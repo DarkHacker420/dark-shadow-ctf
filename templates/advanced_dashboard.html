@@ -1,0 +1,237 @@
+{% extends "advanced_base.html" %}
+
+{% block title %}Dashboard - Advanced CTF{% endblock %}
+
+{% block extra_head %}
+<style>
+  .stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 10px 0;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  
+  .challenge-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    border-left: 4px solid #00ff88;
+    transition: all 0.3s ease;
+  }
+  
+  .challenge-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 255, 136, 0.3);
+  }
+  
+  .country-flag {
+    width: 20px;
+    height: 15px;
+    margin-right: 5px;
+  }
+  
+  .progress-custom {
+    height: 10px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .progress-custom .progress-bar {
+    background: linear-gradient(90deg, #00ff88, #00d4aa);
+    border-radius: 5px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <!-- User Profile Section -->
+    <div class="col-md-3">
+      <div class="stats-card text-center">
+        <img src="{{ user.avatar }}" class="rounded-circle mb-3" width="80" height="80" alt="Avatar">
+        <h4>{{ user.username }}</h4>
+        <p><i class="fas fa-flag"></i> 
+          {% if user.country == 'Pakistan' %}
+            🇵🇰 Pakistan
+          {% elif user.country == 'USA' %}
+            🇺🇸 USA
+          {% elif user.country == 'UK' %}
+            🇬🇧 UK
+          {% elif user.country == 'Canada' %}
+            🇨🇦 Canada
+          {% elif user.country == 'India' %}
+            🇮🇳 India
+          {% else %}
+            🌍 {{ user.country or 'Unknown' }}
+          {% endif %}
+        </p>
+        <div class="row text-center">
+          <div class="col-4">
+            <h5>{{ user.total_score }}</h5>
+            <small>Points</small>
+          </div>
+          <div class="col-4">
+            <h5>{{ user.challenges_solved }}</h5>
+            <small>Solved</small>
+          </div>
+          <div class="col-4">
+            <h5>{{ user.rank }}</h5>
+            <small>Rank</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="col-md-9">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
+            <h3>{{ user.total_score }}</h3>
+            <p>Total Points</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+            <h3>{{ user.challenges_solved }}</h3>
+            <p>Challenges Solved</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-clock fa-2x text-info mb-2"></i>
+            <h3>{{ user.time_spent }}</h3>
+            <p>Time Spent</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stats-card text-center">
+            <i class="fas fa-medal fa-2x text-primary mb-2"></i>
+            <h3>#{{ user.rank }}</h3>
+            <p>Global Rank</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Progress Section -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <h4><i class="fas fa-chart-line"></i> Progress Overview</h4>
+          {% for category, progress in user.category_progress.items() %}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span>{{ category }}</span>
+              <span>{{ progress.solved }}/{{ progress.total }} ({{ progress.percentage }}%)</span>
+            </div>
+            <div class="progress progress-custom">
+              <div class="progress-bar" style="width: {{ progress.percentage }}%"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Available Challenges -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <h4><i class="fas fa-tasks"></i> Available Challenges</h4>
+      <div class="row">
+        {% for challenge in challenges %}
+        <div class="col-md-6 col-lg-4">
+          <div class="challenge-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="mb-0">{{ challenge.name }}</h6>
+              <span class="badge 
+                {% if challenge.difficulty == 'Easy' %}bg-success
+                {% elif challenge.difficulty == 'Medium' %}bg-warning
+                {% else %}bg-danger{% endif %}">
+                {{ challenge.difficulty }}
+              </span>
+            </div>
+            <p class="small mb-2">{{ challenge.description[:100] }}...</p>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted small">{{ challenge.category }}</span>
+              <span class="text-warning"><i class="fas fa-star"></i> {{ challenge.points }}</span>
+            </div>
+            <a href="/challenge/{{ challenge.id }}" class="btn btn-outline-success btn-sm mt-2">
+              <i class="fas fa-play"></i> Start Challenge
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Recent Submissions -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <h4><i class="fas fa-history"></i> Recent Submissions</h4>
+      <div class="table-responsive">
+        <table class="table table-dark table-striped">
+          <thead>
+            <tr>
+              <th>Challenge</th>
+              <th>Status</th>
+              <th>Points</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for submission in user.recent_submissions %}
+            <tr>
+              <td>{{ submission.challenge_name }}</td>
+              <td>
+                {% if submission.correct %}
+                  <span class="badge bg-success"><i class="fas fa-check"></i> Correct</span>
+                {% else %}
+                  <span class="badge bg-danger"><i class="fas fa-times"></i> Incorrect</span>
+                {% endif %}
+              </td>
+              <td>{{ submission.points if submission.correct else 0 }}</td>
+              <td>{{ submission.timestamp }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Add some interactive elements
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate progress bars
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.transition = 'width 1s ease-in-out';
+            bar.style.width = width;
+        }, 500);
+    });
+    
+    // Add hover effects to challenge cards
+    const challengeCards = document.querySelectorAll('.challenge-card');
+    challengeCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.borderLeft = '4px solid #00d4aa';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.borderLeft = '4px solid #00ff88';
+        });
+    });
+});
+</script>
+{% endblock %}

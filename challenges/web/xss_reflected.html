@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Portal - XSS Challenge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .search-container {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #fff;
+            border-radius: 8px;
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+            color: #fff;
+        }
+        
+        .btn-search {
+            background: linear-gradient(45deg, #00ff88, #00d4aa);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        
+        .btn-search:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+            color: #000;
+        }
+        
+        .challenge-info {
+            background: rgba(0, 128, 255, 0.1);
+            border: 1px solid rgba(0, 128, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .hint-box {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .results-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            min-height: 200px;
+        }
+        
+        .search-result {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #00ff88;
+        }
+        
+        .vulnerable-output {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .success-flag {
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: #00ff88;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="challenge-info">
+                    <h5><i class="fas fa-info-circle"></i> Challenge: Reflected XSS Hunter</h5>
+                    <p><strong>Objective:</strong> Find and exploit a reflected XSS vulnerability</p>
+                    <p><strong>Target:</strong> This search application reflects user input without proper sanitization</p>
+                    <p><strong>Goal:</strong> Execute JavaScript code in the browser to reveal the flag</p>
+                </div>
+                
+                <div class="search-container">
+                    <div class="text-center mb-4">
+                        <h2><i class="fas fa-search"></i> UNIVERSAL SEARCH PORTAL</h2>
+                        <p class="text-secondary">Advanced Search Engine v2.1 - Now with Enhanced Features!</p>
+                    </div>
+                    
+                    <form id="searchForm" class="mb-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchQuery" name="q" 
+                                   placeholder="Enter your search query..." required>
+                            <button type="submit" class="btn btn-search">
+                                <i class="fas fa-search"></i> SEARCH
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="hint-box">
+                        <h6><i class="fas fa-lightbulb"></i> Hints:</h6>
+                        <ul>
+                            <li>The search results reflect your input directly in the HTML</li>
+                            <li>Try basic XSS payloads like: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
+                            <li>If basic scripts don't work, try: <code>&lt;img src=x onerror=alert('XSS')&gt;</code></li>
+                            <li>Look for ways to execute JavaScript that will reveal the hidden flag</li>
+                            <li>The flag is stored in a JavaScript variable called <code>hiddenFlag</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="results-container" id="resultsContainer" style="display: none;">
+                    <h4><i class="fas fa-list"></i> Search Results</h4>
+                    <div id="searchResults"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Hidden flag for XSS challenge
+        const hiddenFlag = 'CTF{xss_r3fl3ct3d_hunt3r}';
+        
+        // Mock search database
+        const searchDatabase = [
+            { title: "Web Security Best Practices", content: "Learn about securing web applications..." },
+            { title: "XSS Prevention Guide", content: "Cross-site scripting prevention techniques..." },
+            { title: "SQL Injection Defense", content: "How to prevent SQL injection attacks..." },
+            { title: "OWASP Top 10", content: "Most critical web application security risks..." },
+            { title: "Penetration Testing", content: "Ethical hacking and security testing..." }
+        ];
+        
+        let xssDetected = false;
+        
+        // Global functions for XSS testing
+        window.revealFlag = function() {
+            showSuccessFlag();
+            return hiddenFlag;
+        };
+        
+        window.showFlag = function() {
+            showSuccessFlag();
+            return hiddenFlag;
+        };
+        
+        window.getFlag = function() {
+            showSuccessFlag();
+            return hiddenFlag;
+        };
+        
+        function showSuccessFlag() {
+            if (!xssDetected) {
+                xssDetected = true;
+                const flagDiv = document.createElement('div');
+                flagDiv.className = 'success-flag';
+                flagDiv.innerHTML = `
+                    <i class="fas fa-flag"></i> XSS SUCCESSFUL! FLAG: ${hiddenFlag}
+                    <br><small>🎉 You successfully exploited the reflected XSS vulnerability!</small>
+                    <br><br><div style="background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <strong>🎯 Challenge Complete!</strong><br>
+                    Copy this flag and submit it in the main CTF platform:<br>
+                    <code style="background: #000; padding: 0.5rem; border-radius: 4px; color: #00ff88; font-size: 1.1rem;">${hiddenFlag}</code>
+                    </div>
+                `;
+                document.getElementById('searchResults').appendChild(flagDiv);
+            }
+        }
+        
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const query = document.getElementById('searchQuery').value;
+            const resultsContainer = document.getElementById('resultsContainer');
+            const searchResults = document.getElementById('searchResults');
+            
+            // Check for XSS patterns
+            const xssPatterns = [
+                '<script>',
+                'javascript:',
+                'onerror=',
+                'onload=',
+                'onclick=',
+                'onmouseover=',
+                'alert(',
+                'eval(',
+                'hiddenFlag',
+                'revealFlag(',
+                '<img',
+                '<svg',
+                '<iframe'
+            ];
+            
+            let containsXSS = false;
+            xssPatterns.forEach(pattern => {
+                if (query.toLowerCase().includes(pattern.toLowerCase())) {
+                    containsXSS = true;
+                }
+            });
+            
+            // Show results container
+            resultsContainer.style.display = 'block';
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            // Clear previous results
+            searchResults.innerHTML = '';
+            
+            // VULNERABLE: Directly inserting user input into HTML (this is the vulnerability!)
+            let resultsHTML = `<div class="vulnerable-output">
+                <strong>You searched for:</strong> ${query}
+            </div>`;
+            
+            // Add mock search results if not XSS
+            if (!containsXSS) {
+                const matchingResults = searchDatabase.filter(item => 
+                    item.title.toLowerCase().includes(query.toLowerCase()) || 
+                    item.content.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                if (matchingResults.length > 0) {
+                    matchingResults.forEach(result => {
+                        resultsHTML += `
+                            <div class="search-result">
+                                <h5>${result.title}</h5>
+                                <p>${result.content}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    resultsHTML += `
+                        <div class="search-result">
+                            <h5>No results found</h5>
+                            <p>Sorry, no results were found for "${query}". Try a different search term.</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            // This is the vulnerable part - directly setting innerHTML with user input
+            searchResults.innerHTML = resultsHTML;
+            
+            // Check for specific flag access attempts
+            if (query.includes('hiddenFlag') && containsXSS) {
+                setTimeout(() => {
+                    showSuccessFlag();
+                }, 500);
+            }
+        });
+        
+        // Override alert to detect XSS success
+        const originalAlert = window.alert;
+        window.alert = function(message) {
+            // Check if this alert is from a user XSS payload
+            if (document.getElementById('searchResults') && 
+                document.getElementById('searchResults').innerHTML.includes('You searched for:')) {
+                
+                if (String(message).includes('XSS') || 
+                    String(message).includes(hiddenFlag) || 
+                    String(message).includes('CTF{')) {
+                    setTimeout(() => showSuccessFlag(), 100);
+                }
+            }
+            return originalAlert.apply(this, arguments);
+        };
+    </script>
+</body>
+</html>

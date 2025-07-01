@@ -1,0 +1,11 @@
+
+🎯 MISC CHALLENGE: ASCII QR Code
+=================================
+
+This is a text representation of a QR code.
+In a real challenge, this would be an actual QR code image.
+
+For this demo, the flag is: CTF{qr_c0d3_m4st3r}
+
+Hint: Sometimes you don't need special tools to read QR codes!
+    

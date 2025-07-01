@@ -1,0 +1,60 @@
+Hidden Message Steganography Challenge
+======================================
+Author: DARK-SHADOW
+Points: 130
+Difficulty: Medium
+
+Description:
+A secret message has been hidden in an image using steganography techniques.
+Since this is a text-based simulation, the "image" is represented below.
+
+Challenge:
+----------
+The image would normally be a PNG file, but for this simulation, 
+we're providing the hidden message directly.
+
+Steganography Simulation:
+The message is hidden using LSB (Least Significant Bit) technique.
+In a real scenario, you would use tools like:
+- steghide
+- stegsolve
+- binwalk
+- strings command
+- hexdump analysis
+
+Hidden Message (decoded):
+-------------------------
+Looking at the binary data of the "image", you would find:
+
+Binary: 01000011 01010100 01000110 01111011 01110011 01110100 
+        01100101 01100111 00110100 01101110 00110000 01100111 
+        01110010 00110100 01110000 01101000 01111001 01011111 
+        01101101 00110100 01110011 01110100 00110011 01110010 
+        01111101
+
+Converting to ASCII:
+CTF{st3g4n0gr4phy_m4st3r}
+
+Tools and Techniques:
+--------------------
+1. Visual Analysis - Look for visual anomalies
+2. File Header Analysis - Check for hidden file signatures
+3. LSB Analysis - Extract least significant bits
+4. Frequency Analysis - Look for statistical anomalies
+5. String Extraction - Search for readable text
+6. Metadata Examination - Check EXIF and other metadata
+
+Real-world steganography tools:
+- steghide: Hide data in images/audio
+- stegsolve: Java-based stego analysis tool
+- StegCracker: Brute force steganography
+- zsteg: Detect stego in PNG/BMP
+- stegseek: Fast steghide cracker
+
+Example commands:
+steghide extract -sf image.jpg
+strings image.png | grep CTF
+binwalk -e image.png
+stegsolve.jar (GUI tool)
+
+Flag: CTF{st3g4n0gr4phy_m4st3r}

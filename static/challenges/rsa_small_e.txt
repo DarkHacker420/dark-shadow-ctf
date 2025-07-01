@@ -1,0 +1,70 @@
+RSA Small Exponent Attack Challenge
+=====================================
+Author: DARK-SHADOW
+Points: 200
+Difficulty: Hard
+
+Description:
+This RSA implementation uses a dangerously small public exponent (e=3).
+When the message is small enough, you can recover it without the private key!
+
+Challenge Data:
+--------------
+n = 24643094147917599598155534996734892673353147126071274047742323633936720049267
+e = 3
+c = 11197948928263020353002302640779166387745839772094885473329885073397194884571
+
+Where:
+- n is the RSA modulus (p * q)
+- e is the public exponent (dangerously small!)
+- c is the encrypted flag
+
+Your Task:
+1. Understand why small exponent e=3 is dangerous
+2. Implement the cube root attack
+3. Recover the original message
+4. Convert the message to text to get the flag
+
+Mathematical Background:
+-----------------------
+In RSA encryption: c = m^e (mod n)
+When e=3 and m^3 < n, then c = m^3 (without modular reduction)
+This means: m = cube_root(c)
+
+Hints:
+- The message is small enough that m^3 < n
+- You need to compute the integer cube root of c
+- Convert the result to bytes, then to ASCII text
+- Python tip: Use the ** operator with fractional exponent or implement integer cube root
+
+Example Python code structure:
+```python
+import math
+
+def integer_cube_root(n):
+    # Implement integer cube root
+    # Return the largest integer x such that x^3 <= n
+    pass
+
+def solve_challenge():
+    n = 24643094147917599598155534996734892673353147126071274047742323633936720049267
+    e = 3
+    c = 11197948928263020353002302640779166387745839772094885473329885073397194884571
+    
+    # Since m^3 < n, we can simply compute cube root of c
+    m = integer_cube_root(c)
+    
+    # Convert to bytes and then to text
+    flag = # Your implementation here
+    return flag
+```
+
+Expected Output:
+The flag will be in the format: CTF{rs4_sm4ll_3xp0n3nt_pwn3d}
+
+Additional Information:
+- This vulnerability exists when e is small (typically e=3) and the message is short
+- In real implementations, proper padding (like OAEP) prevents this attack
+- The attack works because no modular reduction occurs when m^e < n
+
+Good luck with your RSA attack!

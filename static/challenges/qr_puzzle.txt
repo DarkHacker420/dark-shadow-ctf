@@ -1,0 +1,94 @@
+QR Code Puzzle Master Challenge
+================================
+Author: DARK-SHADOW
+Points: 90
+Difficulty: Easy
+
+Description:
+This challenge involves decoding a series of QR codes that contain parts of the flag.
+Since we can't display actual QR codes in text format, we'll provide the decoded data.
+
+Challenge Scenario:
+------------------
+You've found three damaged QR codes. Each contains part of the flag.
+Using QR code reconstruction and analysis techniques, decode each one:
+
+QR Code #1 (Partially Damaged):
+Raw data: "CTF{qr_c0d3_"
+Status: Complete - First part of flag
+
+QR Code #2 (Error Correction Needed):
+Raw data (corrupted): "puzzl3_m4st"
+Corrected data: "puzzl3_m4st"
+Status: Recovered using error correction
+
+QR Code #3 (Hidden in Image):
+Base64 encoded data: "M3J9"
+Decoded: "3r}"
+Status: Extracted from steganographic image
+
+QR Code Analysis Tools:
+----------------------
+1. zbarimg - Command line QR decoder
+2. QR Code Reader apps
+3. Online QR decoders
+4. Python libraries:
+   - qrcode
+   - pyzbar
+   - opencv-python
+5. Image processing for damaged codes:
+   - GIMP/Photoshop for manual repair
+   - ImageMagick for batch processing
+
+Reconstruction Techniques:
+-------------------------
+1. Error Correction: QR codes have built-in error correction
+2. Pattern Recognition: Identify timing patterns and alignment
+3. Data Recovery: Use redundancy in QR format
+4. Image Enhancement: Improve contrast and clarity
+5. Manual Reconstruction: Redraw damaged areas
+
+Example Python Code:
+```python
+from pyzbar import pyzbar
+import cv2
+
+# Read QR code from image
+image = cv2.imread('qrcode.png')
+barcodes = pyzbar.decode(image)
+
+for barcode in barcodes:
+    data = barcode.data.decode('utf-8')
+    print(f"QR Code data: {data}")
+```
+
+Command Line Tools:
+```bash
+# Decode QR code from image
+zbarimg qrcode.png
+
+# Extract QR codes from complex images
+zbarimg --quiet --raw image_with_multiple_qr.png
+
+# Using ImageMagick to enhance image first
+convert qrcode.png -enhance -sharpen 0x1 enhanced_qr.png
+zbarimg enhanced_qr.png
+```
+
+Assembling the Flag:
+-------------------
+QR Code #1: "CTF{qr_c0d3_"
+QR Code #2: "puzzl3_m4st"  
+QR Code #3: "3r}"
+
+Combined Flag: CTF{qr_c0d3_puzzl3_m4st3r}
+
+Learning Objectives:
+-------------------
+- Understanding QR code structure and error correction
+- Image processing and enhancement techniques
+- Using multiple decoding tools and libraries
+- Combining data from multiple sources
+- Basic cryptographic encoding (Base64)
+
+Flag: CTF{qr_c0d3_puzzl3_m4st3r}
