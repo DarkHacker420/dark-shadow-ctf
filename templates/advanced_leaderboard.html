@@ -1,0 +1,328 @@
+{% extends "advanced_base.html" %}
+
+{% block title %}Leaderboard - Advanced CTF{% endblock %}
+
+{% block extra_head %}
+<style>
+  .leaderboard-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border-radius: 15px;
+    padding: 20px;
+    margin: 10px 0;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .leaderboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 255, 136, 0.2);
+  }
+  
+  .rank-badge {
+    font-size: 1.5rem;
+    font-weight: bold;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); }
+  .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A9A9A9); }
+  .rank-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); }
+  .rank-other { background: linear-gradient(135deg, #667eea, #764ba2); }
+  
+  .country-flag {
+    width: 25px;
+    height: 18px;
+    margin-right: 8px;
+    border-radius: 3px;
+  }
+  
+  .progress-ring {
+    transform: rotate(-90deg);
+  }
+  
+  .progress-ring-circle {
+    transition: stroke-dasharray 0.35s;
+    transform-origin: 50% 50%;
+  }
+  
+  .stats-overview {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h1 class="display-4 text-gradient">
+        <i class="fas fa-trophy text-warning"></i> Global Leaderboard
+      </h1>
+      <p class="lead">Compete with the best hackers from around the world, including Pakistan!</p>
+    </div>
+  </div>
+  
+  <!-- Statistics Overview -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="stats-overview text-center">
+        <i class="fas fa-users fa-2x text-primary mb-2"></i>
+        <h4>{{ total_users }}</h4>
+        <p>Total Hackers</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-overview text-center">
+        <i class="fas fa-globe fa-2x text-info mb-2"></i>
+        <h4>{{ total_countries }}</h4>
+        <p>Countries</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-overview text-center">
+        <i class="fas fa-flag-checkered fa-2x text-success mb-2"></i>
+        <h4>{{ total_submissions }}</h4>
+        <p>Total Submissions</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-overview text-center">
+        <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+        <h4>{{ hours_played }}</h4>
+        <p>Hours Played</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Top 3 Special Display -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h3><i class="fas fa-medal"></i> Hall of Fame</h3>
+      <div class="row">
+        {% for user in leaderboard[:3] %}
+        <div class="col-md-4">
+          <div class="leaderboard-card text-center">
+            <div class="rank-badge mx-auto mb-3 rank-{{ loop.index }}">
+              {{ loop.index }}
+            </div>
+            <img src="{{ user.avatar }}" class="rounded-circle mb-3" width="60" height="60" alt="Avatar">
+            <h5>{{ user.username }}</h5>
+            <p>
+              {% if user.country == 'Pakistan' %}
+                🇵🇰 Pakistan
+              {% elif user.country == 'USA' %}
+                🇺🇸 USA
+              {% elif user.country == 'UK' %}
+                🇬🇧 UK
+              {% elif user.country == 'Canada' %}
+                🇨🇦 Canada
+              {% elif user.country == 'India' %}
+                🇮🇳 India
+              {% elif user.country == 'Germany' %}
+                🇩🇪 Germany
+              {% elif user.country == 'France' %}
+                🇫🇷 France
+              {% elif user.country == 'Japan' %}
+                🇯🇵 Japan
+              {% elif user.country == 'Brazil' %}
+                🇧🇷 Brazil
+              {% elif user.country == 'Australia' %}
+                🇦🇺 Australia
+              {% else %}
+                🌍 {{ user.country or 'Unknown' }}
+              {% endif %}
+            </p>
+            <div class="row">
+              <div class="col-6">
+                <h6 class="text-warning">{{ user.total_score }}</h6>
+                <small>Points</small>
+              </div>
+              <div class="col-6">
+                <h6 class="text-success">{{ user.challenges_solved }}</h6>
+                <small>Solved</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  
+  <!-- Full Leaderboard Table -->
+  <div class="row">
+    <div class="col-12">
+      <h3><i class="fas fa-list-ol"></i> Complete Rankings</h3>
+      <div class="table-responsive">
+        <table class="table table-dark table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Hacker</th>
+              <th>Country</th>
+              <th>Points</th>
+              <th>Solved</th>
+              <th>Last Active</th>
+              <th>Progress</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in all_users %}
+            <tr class="{% if user.username == current_user %}table-info{% endif %}">
+              <td>
+                <span class="rank-badge 
+                  {% if loop.index <= 3 %}rank-{{ loop.index }}
+                  {% else %}rank-other{% endif %}" 
+                  style="width: 30px; height: 30px; font-size: 0.9rem;">
+                  {{ loop.index }}
+                </span>
+              </td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <img src="{{ user.avatar }}" class="rounded-circle me-2" width="30" height="30" alt="Avatar">
+                  <span>{{ user.username }}</span>
+                  {% if user.username == current_user %}
+                    <span class="badge bg-info ms-2">You</span>
+                  {% endif %}
+                </div>
+              </td>
+              <td>
+                {% if user.country == 'Pakistan' %}
+                  🇵🇰 Pakistan
+                {% elif user.country == 'USA' %}
+                  🇺🇸 USA
+                {% elif user.country == 'UK' %}
+                  🇬🇧 UK
+                {% elif user.country == 'Canada' %}
+                  🇨🇦 Canada
+                {% elif user.country == 'India' %}
+                  🇮🇳 India
+                {% elif user.country == 'Germany' %}
+                  🇩🇪 Germany
+                {% elif user.country == 'France' %}
+                  🇫🇷 France
+                {% elif user.country == 'Japan' %}
+                  🇯🇵 Japan
+                {% elif user.country == 'Brazil' %}
+                  🇧🇷 Brazil
+                {% elif user.country == 'Australia' %}
+                  🇦🇺 Australia
+                {% else %}
+                  🌍 {{ user.country or 'Unknown' }}
+                {% endif %}
+              </td>
+              <td>
+                <span class="text-warning fw-bold">{{ user.total_score }}</span>
+              </td>
+              <td>
+                <span class="badge bg-success">{{ user.challenges_solved }}</span>
+              </td>
+              <td>
+                <small class="text-muted">{{ user.last_active }}</small>
+              </td>
+              <td>
+                <div class="progress" style="height: 8px;">
+                  <div class="progress-bar bg-gradient" 
+                       style="width: {{ (user.challenges_solved / total_challenges * 100) | round }}%; 
+                              background: linear-gradient(90deg, #00ff88, #00d4aa);">
+                  </div>
+                </div>
+                <small>{{ (user.challenges_solved / total_challenges * 100) | round }}%</small>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Country Statistics -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <h3><i class="fas fa-globe-americas"></i> Country Rankings</h3>
+      <div class="row">
+        {% for country in country_stats %}
+        <div class="col-md-3 col-sm-6 mb-3">
+          <div class="stats-overview text-center">
+            <h4>
+              {% if country.name == 'Pakistan' %}
+                🇵🇰
+              {% elif country.name == 'USA' %}
+                🇺🇸
+              {% elif country.name == 'UK' %}
+                🇬🇧
+              {% elif country.name == 'Canada' %}
+                🇨🇦
+              {% elif country.name == 'India' %}
+                🇮🇳
+              {% elif country.name == 'Germany' %}
+                🇩🇪
+              {% elif country.name == 'France' %}
+                🇫🇷
+              {% elif country.name == 'Japan' %}
+                🇯🇵
+              {% elif country.name == 'Brazil' %}
+                🇧🇷
+              {% elif country.name == 'Australia' %}
+                🇦🇺
+              {% else %}
+                🌍
+              {% endif %}
+            </h4>
+            <h6>{{ country.name }}</h6>
+            <p class="mb-1"><strong>{{ country.users }}</strong> hackers</p>
+            <p class="mb-0 text-warning"><strong>{{ country.total_points }}</strong> total points</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate progress bars on scroll
+    const progressBars = document.querySelectorAll('.progress-bar');
+    
+    const animateProgressBars = () => {
+        progressBars.forEach(bar => {
+            const rect = bar.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.transition = 'width 1s ease-out';
+                    bar.style.width = width;
+                }, 200);
+            }
+        });
+    };
+    
+    // Run animation on load and scroll
+    animateProgressBars();
+    window.addEventListener('scroll', animateProgressBars);
+    
+    // Add pulsing effect to top 3 badges
+    setInterval(() => {
+        document.querySelectorAll('.rank-1, .rank-2, .rank-3').forEach(badge => {
+            badge.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                badge.style.transform = 'scale(1)';
+            }, 200);
+        });
+    }, 3000);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,495 @@
+{% extends "advanced_base.html" %}
+
+{% block title %}Profile - Advanced CTF{% endblock %}
+
+{% block extra_head %}
+<style>
+  .profile-header {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 128, 255, 0.1));
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    text-align: center;
+  }
+  
+  .profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #00ff88;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+  }
+  
+  .profile-username {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.5rem;
+    font-weight: bold;
+    background: linear-gradient(45deg, #00ff88, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  
+  .stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-5px);
+    border-color: #00ff88;
+    box-shadow: 0 10px 25px rgba(0, 255, 136, 0.2);
+  }
+  
+  .stat-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #00ff88;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-label {
+    color: #ccc;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .category-progress {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+  }
+  
+  .category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .category-item:last-child {
+    border-bottom: none;
+  }
+  
+  .category-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  
+  .category-stats {
+    text-align: right;
+  }
+  
+  .progress-custom {
+    height: 8px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    margin-top: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .progress-custom .progress-bar {
+    background: linear-gradient(90deg, #00ff88, #00d4aa);
+    border-radius: 5px;
+    transition: width 1s ease-in-out;
+  }
+  
+  .solved-challenges {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+  }
+  
+  .challenge-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border-left: 4px solid #00ff88;
+    transition: all 0.3s ease;
+  }
+  
+  .challenge-item:hover {
+    background: rgba(0, 255, 136, 0.1);
+    transform: translateX(5px);
+  }
+  
+  .challenge-info h6 {
+    margin: 0;
+    color: #fff;
+    font-weight: 600;
+  }
+  
+  .challenge-info small {
+    color: #ccc;
+  }
+  
+  .challenge-meta {
+    text-align: right;
+  }
+  
+  .points-earned {
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    color: #000;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+  
+  .solve-time {
+    color: #ccc;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+  }
+  
+  .achievements {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+  }
+  
+  .achievement-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .achievement-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .achievement-card.unlocked {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+  }
+  
+  .achievement-card.locked {
+    opacity: 0.5;
+    border-color: #666;
+  }
+  
+  .achievement-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  
+  .achievement-card.unlocked .achievement-icon {
+    color: #00ff88;
+    text-shadow: 0 0 10px #00ff88;
+  }
+  
+  .achievement-card.locked .achievement-icon {
+    color: #666;
+  }
+  
+  .rank-display {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    margin: 1rem 0;
+  }
+  
+  .rank-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  
+  .country-flag {
+    font-size: 2rem;
+    margin-right: 0.5rem;
+  }
+  
+  .activity-chart {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <img src="{{ user.avatar }}" alt="Avatar" class="profile-avatar">
+    <h1 class="profile-username">{{ user.username }}</h1>
+    
+    <div class="d-flex justify-content-center align-items-center">
+      <span class="country-flag">
+        {% if user.country == 'Pakistan' %}
+          🇵🇰
+        {% elif user.country == 'USA' %}
+          🇺🇸
+        {% elif user.country == 'UK' %}
+          🇬🇧
+        {% elif user.country == 'Canada' %}
+          🇨🇦
+        {% elif user.country == 'India' %}
+          🇮🇳
+        {% elif user.country == 'Germany' %}
+          🇩🇪
+        {% elif user.country == 'France' %}
+          🇫🇷
+        {% elif user.country == 'Japan' %}
+          🇯🇵
+        {% elif user.country == 'Brazil' %}
+          🇧🇷
+        {% elif user.country == 'Australia' %}
+          🇦🇺
+        {% else %}
+          🌍
+        {% endif %}
+      </span>
+      <span class="text-muted">{{ user.country or 'Unknown Location' }}</span>
+    </div>
+    
+    <div class="rank-display mt-3">
+      <div class="rank-number">#{{ user.rank if user.rank != 'Unranked' else '∞' }}</div>
+      <small>Global Rank</small>
+    </div>
+    
+    <small class="text-muted">
+      <i class="fas fa-calendar"></i> Joined {{ user.join_date[:10] if user.join_date else 'Unknown' }}
+      • <i class="fas fa-clock"></i> Last active {{ user.last_active[:10] if user.last_active else 'Unknown' }}
+    </small>
+  </div>
+  
+  <!-- Statistics Cards -->
+  <div class="profile-stats">
+    <div class="stat-card">
+      <span class="stat-number">{{ user.score }}</span>
+      <div class="stat-label">Total Points</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number">{{ solved_challenges|length }}</span>
+      <div class="stat-label">Challenges Solved</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number">{{ submission_stats[0] if submission_stats else 0 }}</span>
+      <div class="stat-label">Total Submissions</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-number">{{ ((submission_stats[1] / submission_stats[0]) * 100)|round if submission_stats and submission_stats[0] > 0 else 0 }}%</span>
+      <div class="stat-label">Success Rate</div>
+    </div>
+  </div>
+  
+  <!-- Category Progress -->
+  <div class="category-progress">
+    <h4><i class="fas fa-chart-line"></i> Category Progress</h4>
+    {% for category, progress in category_progress.items() %}
+    <div class="category-item">
+      <div class="category-name">
+        {% if category == 'Web Security' %}
+          <i class="fas fa-globe text-primary"></i>
+        {% elif category == 'Cryptography' %}
+          <i class="fas fa-lock text-warning"></i>
+        {% elif category == 'Digital Forensics' %}
+          <i class="fas fa-search text-info"></i>
+        {% elif category == 'Reverse Engineering' %}
+          <i class="fas fa-cogs text-danger"></i>
+        {% elif category == 'Binary Exploitation' %}
+          <i class="fas fa-bomb text-danger"></i>
+        {% elif category == 'OSINT' %}
+          <i class="fas fa-eye text-success"></i>
+        {% else %}
+          <i class="fas fa-puzzle-piece text-secondary"></i>
+        {% endif %}
+        {{ category }}
+      </div>
+      <div class="category-stats">
+        <div>{{ progress.solved }} / {{ progress.total }} solved</div>
+        <div class="progress-custom" style="width: 200px;">
+          <div class="progress-bar" style="width: {{ (progress.solved / progress.total * 100) if progress.total > 0 else 0 }}%"></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Achievements -->
+  <div class="achievements">
+    <h4><i class="fas fa-trophy"></i> Achievements</h4>
+    <div class="achievement-grid">
+      <div class="achievement-card {{ 'unlocked' if solved_challenges|length > 0 else 'locked' }}">
+        <span class="achievement-icon">🎯</span>
+        <h6>First Blood</h6>
+        <small>Solve your first challenge</small>
+      </div>
+      <div class="achievement-card {{ 'unlocked' if solved_challenges|length >= 5 else 'locked' }}">
+        <span class="achievement-icon">🔥</span>
+        <h6>Getting Hot</h6>
+        <small>Solve 5 challenges</small>
+      </div>
+      <div class="achievement-card {{ 'unlocked' if solved_challenges|length >= 10 else 'locked' }}">
+        <span class="achievement-icon">⚡</span>
+        <h6>Lightning Fast</h6>
+        <small>Solve 10 challenges</small>
+      </div>
+      <div class="achievement-card {{ 'unlocked' if user.score >= 500 else 'locked' }}">
+        <span class="achievement-icon">💎</span>
+        <h6>Point Master</h6>
+        <small>Earn 500+ points</small>
+      </div>
+      <div class="achievement-card {{ 'unlocked' if category_progress.get('Web Security', {}).get('solved', 0) >= 2 else 'locked' }}">
+        <span class="achievement-icon">🌐</span>
+        <h6>Web Warrior</h6>
+        <small>Master Web Security</small>
+      </div>
+      <div class="achievement-card {{ 'unlocked' if category_progress.get('Cryptography', {}).get('solved', 0) >= 2 else 'locked' }}">
+        <span class="achievement-icon">🔐</span>
+        <h6>Crypto King</h6>
+        <small>Master Cryptography</small>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Solved Challenges -->
+  <div class="solved-challenges">
+    <h4><i class="fas fa-check-circle"></i> Solved Challenges ({{ solved_challenges|length }})</h4>
+    
+    {% if solved_challenges %}
+      {% for challenge in solved_challenges %}
+      <div class="challenge-item">
+        <div class="challenge-info">
+          <h6>{{ ctf_challenges[challenge[0]].name if challenge[0] in ctf_challenges else 'Unknown Challenge' }}</h6>
+          <small>{{ ctf_challenges[challenge[0]].category if challenge[0] in ctf_challenges else 'Unknown Category' }}</small>
+        </div>
+        <div class="challenge-meta">
+          <div class="points-earned">+{{ challenge[2] }} pts</div>
+          <div class="solve-time">{{ challenge[1][:19] if challenge[1] else 'Unknown time' }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-center py-5">
+        <i class="fas fa-flag fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">No challenges solved yet</h5>
+        <p class="text-muted">Start your hacking journey by solving your first challenge!</p>
+        <a href="{{ url_for('challenges') }}" class="btn btn-primary">
+          <i class="fas fa-rocket"></i> Start Hacking
+        </a>
+      </div>
+    {% endif %}
+  </div>
+  
+  <!-- Activity Chart -->
+  <div class="activity-chart">
+    <h4><i class="fas fa-chart-area"></i> Activity Overview</h4>
+    <canvas id="activityChart" width="400" height="200"></canvas>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate progress bars
+    const progressBars = document.querySelectorAll('.progress-bar');
+    progressBars.forEach((bar, index) => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(() => {
+            bar.style.transition = 'width 1s ease-in-out';
+            bar.style.width = width;
+        }, index * 200);
+    });
+    
+    // Achievement hover effects
+    document.querySelectorAll('.achievement-card.unlocked').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.boxShadow = '0 10px 25px rgba(0, 255, 136, 0.3)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = 'none';
+        });
+    });
+    
+    // Activity Chart
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    const activityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+                label: 'Challenges Solved',
+                data: [{{ solved_challenges|length // 4 }}, {{ solved_challenges|length // 3 }}, {{ solved_challenges|length // 2 }}, {{ solved_challenges|length }}],
+                borderColor: '#00ff88',
+                backgroundColor: 'rgba(0, 255, 136, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#fff'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#ccc'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#ccc'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

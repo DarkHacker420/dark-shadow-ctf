@@ -1,0 +1,12 @@
+
+🔐 CRYPTO CHALLENGE: Base64 Decoding
+=====================================
+
+You intercepted this encoded message from a secret communication:
+
+Q1RGe2I0czNfNjRfMXNfbjB0XzNuY3J5cHQxMG59
+
+Can you decode it to find the flag?
+
+Hint: This is a common encoding method, not encryption.
+    

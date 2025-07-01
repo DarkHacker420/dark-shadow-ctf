@@ -1,0 +1,501 @@
+{% extends "advanced_base.html" %}
+
+{% block title %}{{ challenge.name }} - Advanced CTF{% endblock %}
+
+{% block extra_head %}
+<style>
+  .challenge-header {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 128, 255, 0.1));
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    text-align: center;
+  }
+  
+  .challenge-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, #00ff88, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .challenge-meta {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+  
+  .meta-item {
+    text-align: center;
+  }
+  
+  .meta-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00ff88;
+  }
+  
+  .challenge-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .main-content {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 2rem;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+  }
+  
+  .challenge-sidebar {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    height: fit-content;
+  }
+  
+  .flag-submission {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 15px;
+    padding: 2rem;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    margin-top: 2rem;
+  }
+  
+  .flag-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(0, 255, 136, 0.3);
+    border-radius: 10px;
+    color: #fff;
+    padding: 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .flag-input:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+    outline: none;
+  }
+  
+  .submit-btn {
+    background: linear-gradient(45deg, #00ff88, #00d4aa);
+    border: none;
+    color: #000;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-size: 1.1rem;
+  }
+  
+  .submit-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(0, 255, 136, 0.4);
+  }
+  
+  .solved-banner {
+    background: linear-gradient(45deg, rgba(0, 255, 136, 0.2), rgba(50, 205, 50, 0.2));
+    border: 2px solid #00ff88;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    animation: pulse 2s infinite;
+  }
+  
+  .difficulty-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .difficulty-easy {
+    background: rgba(0, 255, 136, 0.2);
+    color: #00ff88;
+    border: 1px solid #00ff88;
+  }
+  
+  .difficulty-medium {
+    background: rgba(255, 165, 0, 0.2);
+    color: #ffa500;
+    border: 1px solid #ffa500;
+  }
+  
+  .difficulty-hard {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+    border: 1px solid #ff4757;
+  }
+  
+  .challenge-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  
+  .tag {
+    background: rgba(0, 255, 136, 0.15);
+    color: #00ff88;
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  .hint-section {
+    background: rgba(255, 165, 0, 0.1);
+    border: 1px solid rgba(255, 165, 0, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+  
+  .hint-toggle {
+    background: transparent;
+    border: 1px solid #ffa500;
+    color: #ffa500;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .hint-toggle:hover {
+    background: rgba(255, 165, 0, 0.2);
+  }
+  
+  .submission-history {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .submission-item {
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid #ff4757;
+  }
+  
+  .submission-item.correct {
+    border-left-color: #00ff88;
+  }
+  
+  .file-download {
+    background: rgba(0, 128, 255, 0.1);
+    border: 1px solid rgba(0, 128, 255, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    text-align: center;
+  }
+  
+  .download-btn {
+    background: linear-gradient(45deg, #0080ff, #0066cc);
+    border: none;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 20px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+  }
+  
+  .download-btn:hover {
+    transform: scale(1.05);
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  @media (max-width: 768px) {
+    .challenge-content {
+      grid-template-columns: 1fr;
+    }
+    
+    .challenge-meta {
+      gap: 1rem;
+    }
+    
+    .challenge-title {
+      font-size: 2rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Solved Banner -->
+  {% if solved %}
+  <div class="solved-banner">
+    <h2><i class="fas fa-trophy text-warning"></i> Challenge Completed!</h2>
+    <p>You solved this challenge on {{ solve_time }}</p>
+  </div>
+  {% endif %}
+  
+  <!-- Challenge Header -->
+  <div class="challenge-header">
+    <h1 class="challenge-title">{{ challenge.name }}</h1>
+    <p class="lead">{{ challenge.description }}</p>
+    
+    <div class="challenge-meta">
+      <div class="meta-item">
+        <div class="meta-value">{{ challenge.points }}</div>
+        <small>Points</small>
+      </div>
+      <div class="meta-item">
+        <span class="difficulty-badge difficulty-{{ challenge.difficulty.lower() }}">
+          {{ challenge.difficulty }}
+        </span>
+      </div>
+      <div class="meta-item">
+        <div class="meta-value">{{ challenge.solve_count }}</div>
+        <small>Solves</small>
+      </div>
+      {% if challenge.estimated_time %}
+      <div class="meta-item">
+        <div class="meta-value" style="font-size: 1rem;">{{ challenge.estimated_time }}</div>
+        <small>Est. Time</small>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="challenge-content">
+    <div class="main-content">
+      <h3><i class="fas fa-info-circle"></i> Challenge Description</h3>
+      
+      {% if challenge.long_description %}
+        <p>{{ challenge.long_description }}</p>
+      {% else %}
+        <p>{{ challenge.description }}</p>
+      {% endif %}
+      
+      <!-- Challenge Tags -->
+      {% if challenge.tags %}
+      <div class="challenge-tags">
+        <strong>Tags:</strong>
+        {% for tag in challenge.tags %}
+          <span class="tag">#{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+      <!-- Hint Section -->
+      {% if challenge.hint and not solved %}
+      <div class="hint-section">
+        <button class="hint-toggle" onclick="toggleHint()">
+          <i class="fas fa-lightbulb"></i> Show Hint
+        </button>
+        <div id="hint-content" style="display: none; margin-top: 1rem;">
+          <p><strong>Hint:</strong> {{ challenge.hint }}</p>
+        </div>
+      </div>
+      {% endif %}
+      
+      <!-- Challenge Access -->
+      {% if challenge.file_url %}
+      <div class="file-download">
+        <h5><i class="fas fa-play-circle"></i> Challenge Access</h5>
+        <p>Start the interactive challenge environment</p>
+        <a href="{{ challenge.file_url }}" class="download-btn" target="_blank">
+          <i class="fas fa-rocket"></i> Start Challenge
+        </a>
+      </div>
+      {% endif %}
+      
+      <!-- Flag Submission -->
+      {% if not solved %}
+      <div class="flag-submission">
+        <h4><i class="fas fa-flag"></i> Submit Flag</h4>
+        <form id="flag-form">
+          <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+          <input type="text" 
+                 name="flag" 
+                 class="flag-input" 
+                 placeholder="CTF{enter_your_flag_here}"
+                 autocomplete="off"
+                 required>
+          <button type="submit" class="submit-btn">
+            <i class="fas fa-rocket"></i> Submit Flag
+          </button>
+        </form>
+        <div id="submission-result" style="margin-top: 1rem;"></div>
+      </div>
+      {% endif %}
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="challenge-sidebar">
+      <h4><i class="fas fa-info"></i> Challenge Info</h4>
+      
+      <div class="mb-3">
+        <strong>Category:</strong><br>
+        <span class="badge bg-primary">{{ challenge.category }}</span>
+      </div>
+      
+      <div class="mb-3">
+        <strong>Author:</strong><br>
+        {{ challenge.author or 'DARK-SHADOW' }}
+      </div>
+      
+      {% if challenge.release_date %}
+      <div class="mb-3">
+        <strong>Released:</strong><br>
+        {{ challenge.release_date }}
+      </div>
+      {% endif %}
+      
+      <!-- Submission History -->
+      {% if submissions %}
+      <h5><i class="fas fa-history"></i> Your Attempts</h5>
+      <div class="submission-history">
+        {% for submission in submissions %}
+        <div class="submission-item {% if submission[1] %}correct{% endif %}">
+          <div class="d-flex justify-content-between">
+            <small>{{ submission[2] }}</small>
+            {% if submission[1] %}
+              <span class="text-success"><i class="fas fa-check"></i></span>
+            {% else %}
+              <span class="text-danger"><i class="fas fa-times"></i></span>
+            {% endif %}
+          </div>
+          <code style="font-size: 0.8rem;">{{ submission[0][:50] }}{% if submission[0]|length > 50 %}...{% endif %}</code>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+      <!-- Back to Challenges -->
+      <div class="mt-4">
+        <a href="{{ url_for('challenges') }}" class="btn btn-outline-secondary w-100">
+          <i class="fas fa-arrow-left"></i> Back to Challenges
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleHint() {
+    const hintContent = document.getElementById('hint-content');
+    const button = document.querySelector('.hint-toggle');
+    
+    if (hintContent.style.display === 'none') {
+        hintContent.style.display = 'block';
+        button.innerHTML = '<i class="fas fa-lightbulb"></i> Hide Hint';
+    } else {
+        hintContent.style.display = 'none';
+        button.innerHTML = '<i class="fas fa-lightbulb"></i> Show Hint';
+    }
+}
+
+// Flag submission
+document.getElementById('flag-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('.submit-btn');
+    const resultDiv = document.getElementById('submission-result');
+    
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    
+    fetch('/submit_flag', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success animate__animated animate__bounceIn">
+                    <i class="fas fa-trophy"></i> ${data.message}
+                    <br><strong>New Score: ${data.new_score} points!</strong>
+                </div>
+            `;
+            
+            // Show celebration
+            showCelebration();
+            
+            // Reload page after 3 seconds
+            setTimeout(() => {
+                location.reload();
+            }, 3000);
+        } else {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger animate__animated animate__shakeX">
+                    <i class="fas fa-times"></i> ${data.message}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> Error submitting flag
+            </div>
+        `;
+    })
+    .finally(() => {
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-rocket"></i> Submit Flag';
+        
+        // Clear the form
+        this.reset();
+    });
+});
+
+function showCelebration() {
+    // Create celebration overlay
+    const celebration = document.createElement('div');
+    celebration.innerHTML = `
+        <div class="celebration animate__animated animate__bounceIn">
+            <h2><i class="fas fa-trophy text-warning"></i> Congratulations!</h2>
+            <p>You've successfully solved this challenge!</p>
+            <div style="font-size: 3rem;">🎉 🏆 🎉</div>
+        </div>
+    `;
+    
+    document.body.appendChild(celebration);
+    
+    // Remove after animation
+    setTimeout(() => {
+        celebration.remove();
+    }, 3000);
+}
+
+// Add typing animation to challenge title
+document.addEventListener('DOMContentLoaded', function() {
+    const title = document.querySelector('.challenge-title');
+    if (title) {
+        title.style.overflow = 'hidden';
+        title.style.borderRight = '3px solid #00ff88';
+        title.style.whiteSpace = 'nowrap';
+        title.style.animation = 'typing 2s steps(40, end), blink-caret 0.75s step-end infinite';
+    }
+});
+</script>
+{% endblock %}

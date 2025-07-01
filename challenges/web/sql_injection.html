@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Bank Login - SQL Injection Challenge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .bank-container {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            margin-top: 5rem;
+        }
+        
+        .bank-logo {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #fff;
+            border-radius: 8px;
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+            color: #fff;
+        }
+        
+        .btn-login {
+            background: linear-gradient(45deg, #00ff88, #00d4aa);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        
+        .btn-login:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+            color: #000;
+        }
+        
+        .error-msg {
+            background: rgba(255, 71, 87, 0.2);
+            border: 1px solid #ff4757;
+            color: #ff4757;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .success-msg {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .challenge-info {
+            background: rgba(0, 128, 255, 0.1);
+            border: 1px solid rgba(0, 128, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .hint-box {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .admin-panel {
+            display: none;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .flag-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: #00ff88;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="challenge-info">
+                    <h5><i class="fas fa-info-circle"></i> Challenge: SQL Injection Master</h5>
+                    <p><strong>Objective:</strong> Bypass the login authentication to access the admin panel</p>
+                    <p><strong>Target:</strong> This vulnerable login form accepts direct SQL queries</p>
+                    <p><strong>Goal:</strong> Find a way to login as admin without knowing the password</p>
+                </div>
+                
+                <div class="bank-container">
+                    <div class="bank-logo">
+                        <h2><i class="fas fa-university"></i> SECURE BANK</h2>
+                        <p class="text-secondary">Ultra Secure Login Portal v1.0</p>
+                    </div>
+                    
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user"></i> Username
+                            </label>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   placeholder="Enter your username" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock"></i> Password
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" 
+                                   placeholder="Enter your password" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-login w-100">
+                            <i class="fas fa-sign-in-alt"></i> SECURE LOGIN
+                        </button>
+                    </form>
+                    
+                    <div id="result"></div>
+                    
+                    <div class="hint-box">
+                        <h6><i class="fas fa-lightbulb"></i> Hints:</h6>
+                        <ul>
+                            <li>The SQL query might look like: <code>SELECT * FROM users WHERE username='$input' AND password='$input'</code></li>
+                            <li>Try SQL comments using <code>--</code> or <code>/* */</code></li>
+                            <li>What happens if you use <code>' OR '1'='1</code> ?</li>
+                            <li>Admin username might be 'admin' or something predictable</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Hidden Admin Panel -->
+                <div id="adminPanel" class="admin-panel">
+                    <h3><i class="fas fa-crown"></i> ADMIN PANEL ACCESS GRANTED!</h3>
+                    <p>🎉 Congratulations! You've successfully bypassed the authentication!</p>
+                    
+                    <div class="flag-display">
+                        <i class="fas fa-flag"></i> FLAG: CTF{sql_1nj3ct10n_m4st3r_2024}
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="card bg-success text-dark">
+                                <div class="card-body text-center">
+                                    <h5>$1,254,789</h5>
+                                    <small>Total Balance</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-warning text-dark">
+                                <div class="card-body text-center">
+                                    <h5>156</h5>
+                                    <small>Active Users</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-info text-dark">
+                                <div class="card-body text-center">
+                                    <h5>23</h5>
+                                    <small>Pending Transactions</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="mt-3 text-secondary">
+                        <i class="fas fa-shield-alt"></i> You've demonstrated the importance of proper input validation and parameterized queries!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            const adminPanel = document.getElementById('adminPanel');
+            
+            // Simulate vulnerable SQL query
+            const query = `SELECT * FROM users WHERE username='${username}' AND password='${password}'`;
+            console.log('SQL Query:', query);
+            
+            // Check for SQL injection patterns
+            const sqlInjectionPatterns = [
+                "' OR '1'='1",
+                "' OR 1=1--",
+                "' OR 1=1#",
+                "' OR 1=1/*",
+                "admin'--",
+                "admin'#",
+                "admin'/*",
+                "' OR 'x'='x",
+                "' OR 'a'='a",
+                "' UNION SELECT",
+                "'; DROP TABLE",
+                "' OR TRUE--",
+                "' OR TRUE#"
+            ];
+            
+            let isInjection = false;
+            
+            // Check if input contains SQL injection
+            sqlInjectionPatterns.forEach(pattern => {
+                if (username.includes(pattern) || password.includes(pattern)) {
+                    isInjection = true;
+                }
+            });
+            
+            // Also check for common admin bypass
+            if ((username.toLowerCase() === 'admin' && password.includes("'")) ||
+                (username.includes("'") && (password.includes("OR") || password.includes("or"))) ||
+                (username.includes("OR") || username.includes("or")) ||
+                (password.includes("OR") || password.includes("or"))) {
+                isInjection = true;
+            }
+            
+            if (isInjection) {
+                resultDiv.innerHTML = `
+                    <div class="success-msg">
+                        <i class="fas fa-check-circle"></i> Authentication bypassed! SQL Injection successful!
+                        <br><small>Query: ${query}</small>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    adminPanel.style.display = 'block';
+                    adminPanel.scrollIntoView({ behavior: 'smooth' });
+                }, 1000);
+                
+            } else if (username === 'admin' && password === 'password123') {
+                // Regular admin login (backup)
+                resultDiv.innerHTML = `
+                    <div class="success-msg">
+                        <i class="fas fa-check-circle"></i> Regular login successful!
+                    </div>
+                `;
+                adminPanel.style.display = 'block';
+                
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="error-msg">
+                        <i class="fas fa-times-circle"></i> Invalid credentials! 
+                        <br><small>Query: ${query}</small>
+                        <br><small>Hint: The application doesn't validate user input properly...</small>
+                    </div>
+                `;
+            }
+        });
+        
+        // Show query in console for debugging
+        document.getElementById('username').addEventListener('input', function() {
+            updateQuery();
+        });
+        
+        document.getElementById('password').addEventListener('input', function() {
+            updateQuery();
+        });
+        
+        function updateQuery() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username || password) {
+                console.log('Current SQL Query:', `SELECT * FROM users WHERE username='${username}' AND password='${password}'`);
+            }
+        }
+    </script>
+</body>
+</html>

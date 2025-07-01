@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Investigation - OSINT Challenge</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .investigation-container {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .challenge-info {
+            background: rgba(0, 128, 255, 0.1);
+            border: 1px solid rgba(0, 128, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .social-post {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .profile-pic {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00ff88, #00d4aa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+            color: #000;
+        }
+        
+        .post-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .post-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+        
+        .metadata-panel {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .hidden-clue {
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        
+        .hidden-clue:hover {
+            opacity: 1;
+        }
+        
+        .answer-section {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #fff;
+            border-radius: 8px;
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+            color: #fff;
+        }
+        
+        .btn-investigate {
+            background: linear-gradient(45deg, #00ff88, #00d4aa);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            border-radius: 8px;
+        }
+        
+        .btn-investigate:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+            color: #000;
+        }
+        
+        .success-flag {
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid #00ff88;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: #00ff88;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .investigation-tools {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="challenge-info">
+                    <h5><i class="fas fa-info-circle"></i> Challenge: Social Media Investigation</h5>
+                    <p><strong>Objective:</strong> Find the target's current location using social media analysis</p>
+                    <p><strong>Target:</strong> @alex_wanderer - A travel enthusiast who shares their adventures</p>
+                    <p><strong>Goal:</strong> Use OSINT techniques to determine their current city</p>
+                    <p><strong>Skills:</strong> Image analysis, metadata extraction, geolocation, social media intelligence</p>
+                </div>
+                
+                <div class="investigation-tools">
+                    <h6><i class="fas fa-tools"></i> Investigation Tools</h6>
+                    <p>Use these techniques:</p>
+                    <ul>
+                        <li><strong>Metadata Analysis:</strong> Check image timestamps and geotags</li>
+                        <li><strong>Reverse Image Search:</strong> Find original sources and locations</li>
+                        <li><strong>Landmark Recognition:</strong> Identify visible buildings and structures</li>
+                        <li><strong>Cross-referencing:</strong> Compare multiple posts for patterns</li>
+                        <li><strong>Time Zone Analysis:</strong> Calculate posting times vs local time</li>
+                    </ul>
+                </div>
+                
+                <!-- Social Media Posts -->
+                <div class="investigation-container">
+                    <h4><i class="fas fa-search"></i> Social Media Timeline Investigation</h4>
+                    
+                    <!-- Post 1 -->
+                    <div class="social-post">
+                        <div class="user-profile">
+                            <div class="profile-pic">A</div>
+                            <div>
+                                <h6>@alex_wanderer</h6>
+                                <small class="text-muted">Posted 2 hours ago from Mobile</small>
+                            </div>
+                        </div>
+                        <p>Amazing sunrise this morning! 🌅 The view from my hotel window never gets old. 
+                        Time to explore this beautiful city! #travel #wanderlust #morningvibes</p>
+                        
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzMzNDI2OCIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkhvdGVsIFdpbmRvdyBWaWV3PC90ZXh0PgogIDx0ZXh0IHg9IjIwMCIgeT0iMTgwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiNjY2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNpdHkgU2t5bGluZSBhdCBTdW5yaXNlPC90ZXh0Pgo8L3N2Zz4=" 
+                             class="post-image" 
+                             alt="Hotel window view" 
+                             onclick="showMetadata('image1')">
+                        
+                        <div class="metadata-panel" id="image1-metadata" style="display: none;">
+                            <strong>Image Metadata:</strong><br>
+                            📷 Camera: iPhone 13 Pro<br>
+                            📅 Date: December 15, 2024<br>
+                            🕐 Time: 06:42 AM (Local)<br>
+                            📍 GPS: 40.7589° N, 73.9851° W<br>
+                            🏨 Location: Times Square, New York<br>
+                            🌐 Timezone: EST (UTC-5)
+                        </div>
+                        
+                        <div class="mt-2">
+                            <span class="badge bg-primary me-1">❤️ 45</span>
+                            <span class="badge bg-secondary me-1">💬 8</span>
+                            <span class="badge bg-success">↗️ 12</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Post 2 -->
+                    <div class="social-post">
+                        <div class="user-profile">
+                            <div class="profile-pic">A</div>
+                            <div>
+                                <h6>@alex_wanderer</h6>
+                                <small class="text-muted">Posted 6 hours ago from Mobile</small>
+                            </div>
+                        </div>
+                        <p>Just landed! ✈️ Long flight but totally worth it. The airport here is massive! 
+                        Can't wait to check into my hotel and start exploring. #adventure #travel</p>
+                        
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzJkM2E1NyIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFpcnBvcnQgVGVybWluYWw8L3RleHQ+CiAgPHRleHQgeD0iMjAwIiB5PSIxODAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0iI2NjYyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+SkZLIEludGVybmF0aW9uYWwgQWlycG9ydDwvdGV4dD4KPC9zdmc+" 
+                             class="post-image" 
+                             alt="Airport terminal" 
+                             onclick="showMetadata('image2')">
+                        
+                        <div class="metadata-panel" id="image2-metadata" style="display: none;">
+                            <strong>Image Metadata:</strong><br>
+                            📷 Camera: iPhone 13 Pro<br>
+                            📅 Date: December 15, 2024<br>
+                            🕐 Time: 02:15 AM (Local)<br>
+                            📍 GPS: 40.6413° N, 73.7781° W<br>
+                            ✈️ Location: JFK International Airport<br>
+                            🌐 Timezone: EST (UTC-5)<br>
+                            🏷️ Terminal: Terminal 4, Gate B23
+                        </div>
+                        
+                        <div class="mt-2">
+                            <span class="badge bg-primary me-1">❤️ 23</span>
+                            <span class="badge bg-secondary me-1">💬 5</span>
+                            <span class="badge bg-success">↗️ 7</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Post 3 -->
+                    <div class="social-post">
+                        <div class="user-profile">
+                            <div class="profile-pic">A</div>
+                            <div>
+                                <h6>@alex_wanderer</h6>
+                                <small class="text-muted">Posted 1 day ago from Web</small>
+                            </div>
+                        </div>
+                        <p>Packing for my next adventure! 🎒 Going somewhere special that I've always wanted to visit. 
+                        <span class="hidden-clue" title="Hover to reveal clue">The city that never sleeps awaits! 🏙️</span></p>
+                        
+                        <div class="metadata-panel">
+                            <strong>Post Analysis:</strong><br>
+                            📅 Posted: December 14, 2024<br>
+                            🕐 Time: 11:30 PM<br>
+                            💻 Device: Desktop/Web Browser<br>
+                            🌍 IP Geolocation: Los Angeles, CA<br>
+                            🔍 Hint: "The city that never sleeps" = <strong>New York City</strong>
+                        </div>
+                        
+                        <div class="mt-2">
+                            <span class="badge bg-primary me-1">❤️ 67</span>
+                            <span class="badge bg-secondary me-1">💬 15</span>
+                            <span class="badge bg-success">↗️ 22</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Answer Section -->
+                    <div class="answer-section">
+                        <h5><i class="fas fa-map-marker-alt"></i> Your Investigation Conclusion</h5>
+                        <p>Based on your analysis of the social media posts, metadata, and OSINT techniques, 
+                        what is @alex_wanderer's current location?</p>
+                        
+                        <form id="investigationForm">
+                            <div class="mb-3">
+                                <label for="city" class="form-label">Current City:</label>
+                                <input type="text" class="form-control" id="city" 
+                                       placeholder="Enter the city name..." required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="evidence" class="form-label">Supporting Evidence:</label>
+                                <textarea class="form-control" id="evidence" rows="3" 
+                                          placeholder="Explain your reasoning and evidence..."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-investigate">
+                                <i class="fas fa-search"></i> SUBMIT INVESTIGATION
+                            </button>
+                        </form>
+                        
+                        <div id="result" class="mt-3"></div>
+                    </div>
+                </div>
+                
+                <!-- Investigation Notes -->
+                <div class="investigation-container">
+                    <h5><i class="fas fa-sticky-note"></i> Investigation Notes</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Timeline Analysis:</h6>
+                            <ul>
+                                <li>Dec 14: Packing post from LA</li>
+                                <li>Dec 15, 2:15 AM: Airport arrival</li>
+                                <li>Dec 15, 6:42 AM: Hotel sunrise view</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Key Evidence:</h6>
+                            <ul>
+                                <li>GPS coordinates: 40.7589° N, 73.9851° W</li>
+                                <li>JFK Airport metadata</li>
+                                <li>"City that never sleeps" reference</li>
+                                <li>Times Square hotel view</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showMetadata(imageId) {
+            const metadata = document.getElementById(imageId + '-metadata');
+            if (metadata.style.display === 'none') {
+                metadata.style.display = 'block';
+                metadata.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                metadata.style.display = 'none';
+            }
+        }
+        
+        document.getElementById('investigationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const city = document.getElementById('city').value.toLowerCase().trim();
+            const evidence = document.getElementById('evidence').value;
+            const resultDiv = document.getElementById('result');
+            
+            // Correct answers
+            const correctAnswers = [
+                'new york',
+                'new york city',
+                'nyc',
+                'manhattan',
+                'times square'
+            ];
+            
+            let isCorrect = false;
+            correctAnswers.forEach(answer => {
+                if (city.includes(answer)) {
+                    isCorrect = true;
+                }
+            });
+            
+            if (isCorrect) {
+                resultDiv.innerHTML = `
+                    <div class="success-flag">
+                        <i class="fas fa-flag"></i> INVESTIGATION SUCCESSFUL!<br>
+                        FLAG: CTF{051nt_s0c14l_m3d14_pwn}<br>
+                        <small>🎉 Excellent detective work! You correctly identified New York City using OSINT techniques!</small>
+                    </div>
+                    <div class="alert alert-success mt-3">
+                        <h6>Investigation Summary:</h6>
+                        <p><strong>Target Location:</strong> New York City, USA</p>
+                        <p><strong>Evidence Used:</strong></p>
+                        <ul>
+                            <li>GPS metadata: 40.7589° N, 73.9851° W (Times Square)</li>
+                            <li>Airport geolocation: JFK International</li>
+                            <li>Social media hint: "City that never sleeps"</li>
+                            <li>Timeline correlation: Flight arrival to hotel check-in</li>
+                        </ul>
+                        <p><strong>Your Analysis:</strong> ${evidence || 'Great work on the investigation!'}</p>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle"></i> Investigation incomplete. 
+                        Review the evidence more carefully. Look at:
+                        <ul>
+                            <li>The GPS coordinates in the image metadata</li>
+                            <li>The airport location and flight timeline</li>
+                            <li>The hidden clues in the posts</li>
+                            <li>The hotel window view description</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        });
+        
+        // Add some interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight clues on hover
+            document.querySelectorAll('.hidden-clue').forEach(clue => {
+                clue.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'rgba(0, 255, 136, 0.2)';
+                });
+                clue.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'transparent';
+                });
+            });
+            
+            console.log('OSINT Challenge Tips:');
+            console.log('1. Click on images to reveal metadata');
+            console.log('2. Hover over hidden clues for additional information');
+            console.log('3. Pay attention to timestamps and GPS coordinates');
+            console.log('4. Cross-reference multiple posts for patterns');
+            console.log('5. The answer is a famous city known for never sleeping');
+        });
+    </script>
+</body>
+</html>

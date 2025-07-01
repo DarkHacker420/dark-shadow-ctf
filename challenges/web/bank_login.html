@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Secure Bank Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f0f0; }
+        .container { max-width: 400px; margin: 50px auto; background: white; padding: 20px; border-radius: 10px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🏦 Secure Bank Login</h2>
+        <form action="#" method="post">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <p><small>Hint: Try SQL injection techniques</small></p>
+        
+        <!-- Developer Note: Fix SQL injection vulnerability -->
+        <!-- SELECT * FROM users WHERE username='$username' AND password='$password' -->
+        <!-- Admin bypass: admin' OR '1'='1' -- -->
+        <!-- Flag: CTF{sql_1nj3ct10n_m4st3r} -->
+    </div>
+</body>
+</html>

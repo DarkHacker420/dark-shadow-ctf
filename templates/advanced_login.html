@@ -1,0 +1,84 @@
+{% extends "advanced_base.html" %}
+
+{% block title %}Login - DARK-SHADOW CTF{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-lg-6 col-md-8">
+            <div class="card animate__animated animate__fadeInUp">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h1 class="typing-effect" style="font-family: 'Orbitron', monospace;">
+                            <i class="fas fa-skull-crossbones glow"></i> DARK-SHADOW CTF
+                        </h1>
+                        <p class="text-secondary mt-3">Enter the cybersecurity battleground</p>
+                    </div>
+                    
+                    <form method="POST" class="needs-validation" novalidate>
+                        <div class="mb-4">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user"></i> Hacker Alias
+                            </label>
+                            <input type="text" class="form-control flag-input" id="username" name="username" 
+                                   placeholder="Enter your hacker name..." required>
+                            <div class="invalid-feedback">Please choose a username.</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="country" class="form-label">
+                                <i class="fas fa-globe"></i> Country (Optional)
+                            </label>
+                            <select class="form-select flag-input" id="country" name="country">
+                                <option value="Unknown">Select Country</option>
+                                <option value="Pakistan">🇵🇰 Pakistan</option>
+                                <option value="United States">🇺🇸 United States</option>
+                                <option value="United Kingdom">🇬🇧 United Kingdom</option>
+                                <option value="Germany">🇩🇪 Germany</option>
+                                <option value="France">🇫🇷 France</option>
+                                <option value="Japan">🇯🇵 Japan</option>
+                                <option value="China">🇨🇳 China</option>
+                                <option value="India">🇮🇳 India</option>
+                                <option value="Russia">🇷🇺 Russia</option>
+                                <option value="Canada">🇨🇦 Canada</option>
+                                <option value="Australia">🇦🇺 Australia</option>
+                                <option value="Brazil">🇧🇷 Brazil</option>
+                                <option value="Other">🌍 Other</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">
+                            <i class="fas fa-rocket"></i> INITIATE HACK
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <small class="text-secondary">
+                            🏴‍☠️ Join the elite hackers • Solve challenges • Claim the throne
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}
